@@ -1,6 +1,6 @@
-import { Command } from "./command";
-import { MutableBuffer } from "mutable-buffer";
-import Image from "./image";
+import { MutableBuffer } from 'mutable-buffer';
+import { Command } from './command';
+import Image from './image';
 export class BufferBuilder {
   private buffer: MutableBuffer;
 
@@ -24,7 +24,7 @@ export class BufferBuilder {
 
   public setCharacterSize(
     width: number = 0,
-    height: number = 0
+    height: number = 0,
   ): BufferBuilder {
     let size = (width << 4) + height;
     this.buffer.write(Command.GS_exclamation(size));
@@ -57,7 +57,7 @@ export class BufferBuilder {
   }
 
   public startUnderline(
-    underlineMode: UNDERLINE_MODE = UNDERLINE_MODE.TWO_POINTS_OF_COARSE
+    underlineMode: UNDERLINE_MODE = UNDERLINE_MODE.TWO_POINTS_OF_COARSE,
   ): BufferBuilder {
     this.buffer.write(Command.ESC_minus(underlineMode));
     return this;
@@ -104,7 +104,7 @@ export class BufferBuilder {
     height: number = 162,
     labelFont: BARCODE_LABEL_FONT = BARCODE_LABEL_FONT.FONT_A,
     labelPosition: BARCODE_LABEL_POSITION = BARCODE_LABEL_POSITION.BOTTOM,
-    leftSpacing: number = 0
+    leftSpacing: number = 0,
   ): BufferBuilder {
     this.buffer.write(Command.GS_w(width)); // width
     this.buffer.write(Command.GS_h(height)); // height
@@ -112,11 +112,16 @@ export class BufferBuilder {
     this.buffer.write(Command.GS_f(labelFont)); // HRI font
     this.buffer.write(Command.GS_H(labelPosition)); // HRI font
     this.buffer.write(Command.GS_K(barcodeSystem, data.length)); // data is a string in UTF-8
-    this.buffer.write(data, "ascii");
+    this.buffer.write(data, 'ascii');
     return this;
   }
 
-  public printQRcode(data: string, model: number, size: number, ecLevel: number): BufferBuilder {
+  public printQRcode(
+    data: string,
+    model: number,
+    size: number,
+    ecLevel: number,
+  ): BufferBuilder {
     let x = data.length + 3;
     let pL = Math.floor(x % 256);
     let pH = Math.floor(x / 256);
@@ -125,7 +130,7 @@ export class BufferBuilder {
     this.buffer.write(Command.QR_SIZE(size));
     this.buffer.write(Command.EC_LEVEL(ecLevel));
     this.buffer.write(Command.STORE_QR(pL, pH));
-    this.buffer.write(data, "ascii");
+    this.buffer.write(data, 'ascii');
     this.buffer.write(Command.PRINT_QR());
 
     return this;
@@ -135,14 +140,14 @@ export class BufferBuilder {
     image: number[],
     width: number,
     height: number,
-    scale: BITMAP_SCALE = BITMAP_SCALE.NORMAL
+    scale: BITMAP_SCALE = BITMAP_SCALE.NORMAL,
   ): BufferBuilder {
     //TODO
     return this;
   }
 
   public printText(text: string): BufferBuilder {
-    this.buffer.write(text, "ascii");
+    this.buffer.write(text, 'utf8');
     return this;
   }
 
@@ -179,7 +184,7 @@ export class BufferBuilder {
    * @return BufferBuilder
    */
   public paperCut(): BufferBuilder {
-    this.buffer.write(Command.GS_v(66,50));
+    this.buffer.write(Command.GS_v(66, 50));
     return this;
   }
 
@@ -197,7 +202,7 @@ export class BufferBuilder {
 
   public printImage(image: Image, mode: RASTER_MODE): BufferBuilder {
     if (!(image instanceof Image)) {
-      throw new TypeError("not supported");
+      throw new TypeError('not supported');
     }
     const raster = image.toRaster();
     this.buffer.write(Command.GS_v0(mode));
